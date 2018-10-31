@@ -2,4 +2,4 @@ cupy
 chainer
 scikit-image
 pillow
-
+pyworld
