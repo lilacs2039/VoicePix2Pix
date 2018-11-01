@@ -70,20 +70,27 @@ class Vp2pDataset(dataset_mixin.DatasetMixin):
     def convert_to_spectrogram(waveNDArray):
         # スペクトル・位相マップ　作成
         D = librosa.stft(waveNDArray)
+        # スペクトログラムの行列サイズをNETに特徴的な値の整数倍にする
+        # 0でpaddingするとlogとったときに-infになるためDの最小値でpaddingする
+        NetFeatureValue=2**8  #TODO 変数化
+        h_div,h_rem = divmod(D.shape[0],NetFeatureValue)
+        w_div,w_rem = divmod(D.shape[1],NetFeatureValue)
+        # D = D + np.ones((NetFeatureValue * (h_div+1),NetFeatureValue * (w_div+1)))*np.min(D)
+        D = np.pad(D,[(0,NetFeatureValue*(h_div+1) - D.shape[0]),(0,NetFeatureValue*(w_div+1) - D.shape[1])],
+                   'constant',constant_values = np.min(np.abs(D)))
         Dabs = np.log10(np.abs(D))
         Dphase = np.angle(D)
         return Dabs,Dphase
 
-    def get_example(self):
-        for path in self.dataPaths:
-            label ,fs= librosa.load(path)
-            input = self._formatSound(fs,label)
-            label_abs, label_phase = self.convert_to_spectrogram(label)
-            input_abs,input_phase = self.convert_to_spectrogram(input)
-            label_abs,_scale_factor,_offset= self._ScaleArray(label_abs)
-            input_abs,_scale_factor,_offset= self._ScaleArray(input_abs)
-
-            yield [label_abs,label_phase],[input_abs,input_phase]
+    def get_example(self,i):
+        path = self.dataPaths[i]
+        label ,fs= librosa.load(path)
+        input = self._formatSound(fs,label)
+        label_abs, label_phase = self.convert_to_spectrogram(label)
+        input_abs,input_phase = self.convert_to_spectrogram(input)
+        label_abs,_scale_factor,_offset= self._ScaleArray(label_abs)
+        input_abs,_scale_factor,_offset= self._ScaleArray(input_abs)
+        return np.array([label_abs,label_phase]),np.array([input_abs,input_phase])
 
     def get_pathName(self,i):
         return self.dataPaths[i]

@@ -14,11 +14,11 @@ from chainer import function
 from chainer.utils import type_check
 import numpy
 
-class FacadeUpdater(chainer.training.StandardUpdater):
+class VoiceP2PUpdater(chainer.training.StandardUpdater):
 
     def __init__(self, *args, **kwargs):
         self.enc, self.dec, self.dis = kwargs.pop('models')
-        super(FacadeUpdater, self).__init__(*args, **kwargs)
+        super(VoiceP2PUpdater, self).__init__(*args, **kwargs)
 
 
     def loss_enc(self, enc, x_out, t_out, y_out, lam1=100, lam2=1):
@@ -59,11 +59,15 @@ class FacadeUpdater(chainer.training.StandardUpdater):
         batchsize = len(batch)
         in_ch = batch[0][0].shape[0]
         out_ch = batch[0][1].shape[0]
-        w_in = 256
-        w_out = 256
-        
-        x_in = xp.zeros((batchsize, in_ch, w_in, w_in)).astype("f")
-        t_out = xp.zeros((batchsize, out_ch, w_out, w_out)).astype("f")
+        # w_in = 256
+        # w_out = 256
+        w_in = batch[0][0].shape[1]
+        h_in = batch[0][0].shape[2]
+        w_out = w_in
+        h_out = h_in
+
+        x_in = xp.zeros((batchsize, in_ch, w_in, h_in)).astype("f")
+        t_out = xp.zeros((batchsize, out_ch, w_out, h_out)).astype("f")
         
         for i in range(batchsize):
             x_in[i,:] = xp.asarray(batch[i][0])

@@ -18,15 +18,15 @@ def out_image(updater, enc, dec, rows, cols, seed, dst):
         
         w_in = 256
         w_out = 256
-        in_ch = 12
-        out_ch = 3
+        in_ch = 2
+        out_ch = 2
         
         in_all = np.zeros((n_images, in_ch, w_in, w_in)).astype("i")
         gt_all = np.zeros((n_images, out_ch, w_out, w_out)).astype("f")
         gen_all = np.zeros((n_images, out_ch, w_out, w_out)).astype("f")
         
-        for it in range(n_images):
-            batch = updater.get_iterator('test').next()
+        # for it in range(n_images):
+        with updater.get_iterator('test').next() as batch:
             batchsize = len(batch)
 
             x_in = xp.zeros((batchsize, in_ch, w_in, w_in)).astype("f")

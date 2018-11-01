@@ -14,10 +14,12 @@ from chainer import serializers
 from net import Discriminator
 from net import Encoder
 from net import Decoder
-from updater import FacadeUpdater
+from updater import VoiceP2PUpdater
 
 from data_loader import Vp2pDataset
 from image_visualizer import out_image
+
+from PIL import Image
 
 def main():
     parser = argparse.ArgumentParser(description='chainer implementation of pix2pix')
@@ -75,7 +77,7 @@ def main():
     test_iter = chainer.iterators.SerialIterator(test_d, args.batchsize)
 
     # Set up a trainer
-    updater = FacadeUpdater(
+    updater = VoiceP2PUpdater(
         models=(enc, dec, dis),
         iterator={
             'main': train_iter,

@@ -22,8 +22,8 @@ class TestDataLoader(unittest.TestCase):
     def test_loadVoice(self):
         train_d = data_loader.Vp2pDataset("dataset/train")
 #        print(list(train_d.get_example(0)))
-        i=0
-        for label,input in train_d.get_example():
+        for i in range(3):
+            label,input = train_d.get_example(i)
             plt.imshow(label[0],cmap='gray')
             plt.title(os.path.basename(train_d.get_pathName(i)))
             plt.show()
