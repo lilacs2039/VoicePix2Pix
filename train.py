@@ -71,8 +71,8 @@ def main():
     test_d = Vp2pDataset(args.dataset + "/test")
     #train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize, n_processes=4)
     #test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize, n_processes=4)
-    train_iter = chainer.iterators.SerialIterator(train_d, args.batchsize)
-    test_iter = chainer.iterators.SerialIterator(test_d, args.batchsize)
+    train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize)
+    test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize)
 
     # Set up a trainer
     updater = VoiceP2PUpdater(
