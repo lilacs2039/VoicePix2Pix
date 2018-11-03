@@ -8,7 +8,7 @@ import chainer
 import chainer.cuda
 from chainer import Variable
 import matplotlib.pyplot as plt
-import parameters
+import util
 
 
 def out_image(updater, enc, dec, rows, cols, seed, dst):
@@ -77,25 +77,25 @@ def out_image(updater, enc, dec, rows, cols, seed, dst):
 
             D_input_abs = input[0]
             D_input_phase = input[1]
-            D_input = D_input_abs * np.exp(1j*D_input_phase)    #xp.exp(1j*Dphase)
-            y_input_hat = librosa.istft(D_input)
+            D_input_abs = util.rescaleArray(D_input_abs)
+            y_input_hat = util.convert_to_wave(D_input_abs,D_input_phase)
             inputWavPath = os.path.join(preview_dir,fileName + '_input.wav')
-            librosa.output.write_wav(inputWavPath,y_input_hat,sr=parameters.sample_ratio)
+            librosa.output.write_wav(inputWavPath, y_input_hat, sr=util.sample_ratio)
 
             D_output_abs = output[0]
             D_output_phase = output[1]
-            D_output = D_output_abs * np.exp(1j*D_output_phase)    #xp.exp(1j*Dphase)
-            y_output_hat = librosa.istft(D_output)
+            D_output_abs = util.rescaleArray(D_output_abs)
+            y_output_hat = util.convert_to_wave(D_output_abs,D_output_phase)
             outputWavPath = os.path.join(preview_dir,fileName + '_output.wav')
-            librosa.output.write_wav(outputWavPath,y_output_hat,sr=parameters.sample_ratio)
+            librosa.output.write_wav(outputWavPath, y_output_hat, sr=util.sample_ratio)
 
-            if parameters.enable_output_labelWav:
+            if util.enable_output_labelWav:
                 D_label_abs = label[0]
                 D_label_phase = label[1]
-                D_label = D_label_abs * np.exp(1j*D_label_phase)    #xp.exp(1j*Dphase)
-                y_label_hat = librosa.istft(D_label)
+                D_label_abs = util.rescaleArray(D_label_abs)
+                y_label_hat = util.convert_to_wave(D_label_abs,D_label_phase)
                 labelWavPath = os.path.join(preview_dir,fileName + '_label.wav')
-                librosa.output.write_wav(labelWavPath,y_label_hat,sr=parameters.sample_ratio)
+                librosa.output.write_wav(labelWavPath, y_label_hat, sr=util.sample_ratio)
 
 
     return make_image
