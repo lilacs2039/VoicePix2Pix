@@ -4,13 +4,11 @@
 
 from __future__ import print_function
 import argparse
+from datetime import datetime
 import os
-
 import chainer
 from chainer import training
 from chainer.training import extensions
-from chainer import serializers
-
 from net import Discriminator
 from net import Encoder
 from net import Decoder
@@ -18,8 +16,6 @@ from updater import VoiceP2PUpdater
 
 from data_loader import Vp2pDataset
 from image_visualizer import out_image
-
-from PIL import Image
 
 def main():
     parser = argparse.ArgumentParser(description='chainer implementation of pix2pix')
@@ -47,6 +43,8 @@ def main():
     print('# Minibatch-size: {}'.format(args.batchsize))
     print('# epoch: {}'.format(args.epoch))
     print('')
+
+    args.out = os.path.join(args.out,datetime.now().strftime("%Y%m%d_%H%M%S"))
 
     # Set up a neural network to train
     enc = Encoder(in_ch=2)
