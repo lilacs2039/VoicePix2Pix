@@ -3,10 +3,11 @@ from chainer.dataset import dataset_mixin
 import numpy as np
 import pyworld as pw
 import glob
-#from PIL import Image
 import librosa
-from scipy.io import wavfile
 import os
+
+import parameters
+
 
 class Vp2pDataset(dataset_mixin.DatasetMixin):
     def __init__(self, dataDir):
@@ -69,14 +70,12 @@ class Vp2pDataset(dataset_mixin.DatasetMixin):
     @staticmethod
     def convert_to_spectrogram(waveNDArray):
         # スペクトル・位相マップ　作成
-        D = librosa.stft(waveNDArray)
-        # スペクトログラムの行列サイズをNETに特徴的な値の整数倍にする
-        # 0でpaddingするとlogとったときに-infになるためDの最小値でpaddingする
-        NetFeatureValue=2**8  #TODO 変数化
-        h_div,h_rem = divmod(D.shape[0],NetFeatureValue)
-        w_div,w_rem = divmod(D.shape[1],NetFeatureValue)
-        # D = D + np.ones((NetFeatureValue * (h_div+1),NetFeatureValue * (w_div+1)))*np.min(D)
-        D = np.pad(D,[(0,NetFeatureValue*(h_div+1) - D.shape[0]),(0,NetFeatureValue*(w_div+1) - D.shape[1])],
+        D = librosa.stft(waveNDArray,n_fft=parameters.n_fft)  #D:np.ndarray [shape=(1 + n_fft/2, t), dtype=dtype]
+        # スペクトログラムの行列サイズをEncoderに特徴的な値の整数倍にする
+        # Encが8レイヤ、各レイヤで行列サイズ1/2になるので、入力スペクトログラムの行・列のサイズは256の倍数とする
+        D = D[0:D.shape[0]-1,:]  #最後の行を削除
+        w_div,w_rem = divmod(D.shape[1],parameters.Encocer_Feature_Constant)
+        D = np.pad(D,[(0,0),(0,parameters.Encocer_Feature_Constant*(w_div+1) - D.shape[1])],
                    'constant',constant_values = np.min(np.abs(D)))
         Dabs = np.log10(np.abs(D))
         Dphase = np.angle(D)
@@ -84,7 +83,7 @@ class Vp2pDataset(dataset_mixin.DatasetMixin):
 
     def get_example(self,i):
         path = self.dataPaths[i]
-        label ,fs= librosa.load(path)
+        label ,fs= librosa.load(path,sr=parameters.sample_ratio)
         input = self._formatSound(fs,label)
         label_abs, label_phase = self.convert_to_spectrogram(label)
         input_abs,input_phase = self.convert_to_spectrogram(input)
