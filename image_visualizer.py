@@ -13,33 +13,37 @@ def out_image(updater, enc, dec, rows, cols, seed, dst):
     @chainer.training.make_extension()
     def make_image(trainer):
         np.random.seed(seed)
-        n_images = rows * cols
+        # n_images = rows * cols
         xp = enc.xp
         
-        w_in = 256
-        w_out = 256
-        in_ch = 2
-        out_ch = 2
-        
-        in_all = np.zeros((n_images, in_ch, w_in, w_in)).astype("i")
-        gt_all = np.zeros((n_images, out_ch, w_out, w_out)).astype("f")
-        gen_all = np.zeros((n_images, out_ch, w_out, w_out)).astype("f")
-        
+        # w_in = 256
+        # w_out = 256
+        # in_ch = 2
+        # out_ch = 2
+
         # for it in range(n_images):
         with updater.get_iterator('test').next() as batch:
             batchsize = len(batch)
 
-            x_in = xp.zeros((batchsize, in_ch, w_in, w_in)).astype("f")
-            t_out = xp.zeros((batchsize, out_ch, w_out, w_out)).astype("f")
 
+            first = True
             for i in range(batchsize):
+                if first:
+                    tmpImage = batch[i][0]
+                    ch,h,w = tmpImage.shape
+                    x_in = xp.zeros((batchsize, ch, h,w)).astype("f")
+                    t_out = xp.zeros((batchsize, ch, h,w)).astype("f")
+                    first = False
                 x_in[i,:] = xp.asarray(batch[i][0])
                 t_out[i,:] = xp.asarray(batch[i][1])
             x_in = Variable(x_in)
 
             z = enc(x_in)
             x_out = dec(z)
-            
+
+            in_all = np.zeros((ch,h,w)).astype("i")
+            gt_all = np.zeros((ch,h,w)).astype("f")
+            gen_all = np.zeros((ch,h,w)).astype("f")
             in_all[it,:] = x_in.data.get()[0,:]
             gt_all[it,:] = t_out.get()[0,:]
             gen_all[it,:] = x_out.data.get()[0,:]
