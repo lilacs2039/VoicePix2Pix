@@ -25,4 +25,7 @@ Encが8レイヤ、各レイヤで行列サイズ1/2になるので 256
 """
 Encocer_Feature_Constant=2**8
 
-
+"""
+ラベル画像の保存をするか
+"""
+enable_output_labelWav = True
