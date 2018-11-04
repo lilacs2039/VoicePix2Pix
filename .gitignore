@@ -1,8 +1,0 @@
-.env 
-.idea
-.ipynb_checkpoints
-__pycache__
-mynote/*
-output/*
-dataset/*
-
