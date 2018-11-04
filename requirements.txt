@@ -3,3 +3,4 @@ chainer
 scikit-image
 pillow
 pyworld
+librosa
