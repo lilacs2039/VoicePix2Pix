@@ -68,7 +68,7 @@ def convert_to_spectrogram(waveNDArray):
     w_div,w_rem = divmod(D.shape[1], Encocer_Feature_Constant)
     D = np.pad(D, [(0,0), (0, Encocer_Feature_Constant * (w_div + 1) - D.shape[1])],
                'constant', constant_values = np.min(np.abs(D)))
-    Dabs = np.log10(np.abs(D))
+    Dabs = np.log10(np.abs(D) + 10**-10)
     Dphase = np.angle(D)
     return Dabs,Dphase
 

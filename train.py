@@ -37,8 +37,10 @@ def main():
                         help='Interval of snapshot')
     parser.add_argument('--display_interval', type=int, default=100,
                         help='Interval of displaying log to console')
-    parser.add_argument('--processes', type=int, default=8,
+    parser.add_argument('--n_processes', type=int, default=None,
                         help='processes of chainer.iterators.MultiprocessIterator')
+    parser.add_argument('--shared_mem', type=int, default=None,
+                        help='shared memory per data, for chainer.iterators.MultiprocessIterator. None means auto ajust.')
     args = parser.parse_args()
 
     print('GPU: {}'.format(args.gpu))
@@ -71,8 +73,8 @@ def main():
 
     train_d = Vp2pDataset(args.dataset + "/train")
     test_d = Vp2pDataset(args.dataset + "/test")
-    train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize, n_processes=args.processes)
-    test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize, n_processes=args.processes)
+    train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize, n_processes=args.n_processes,shared_mem=args.shared_mem)
+    test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize, n_processes=args.n_processes,shared_mem=args.shared_mem)
     # train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize)
     # test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize)
 
