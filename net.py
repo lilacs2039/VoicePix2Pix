@@ -2,16 +2,16 @@
 
 from __future__ import print_function
 
-import numpy
-
 import chainer
-from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
 
 # U-net https://arxiv.org/pdf/1611.07004v1.pdf
 
 # convolution-batchnormalization-(dropout)-relu
+from util import DOF
+
+
 class CBR(chainer.Chain):
     def __init__(self, ch0, ch1, bn=True, sample='down', activation=F.relu, dropout=False):
         self.bn = bn
@@ -36,19 +36,20 @@ class CBR(chainer.Chain):
         if not self.activation is None:
             h = self.activation(h)
         return h
-    
+
+
 class Encoder(chainer.Chain):
     def __init__(self, in_ch):
         layers = {}
         w = chainer.initializers.Normal(0.02)
-        layers['c0'] = L.Convolution2D(in_ch, 64, 3, 1, 1, initialW=w)
-        layers['c1'] = CBR(64, 128, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c2'] = CBR(128, 256, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c3'] = CBR(256, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c4'] = CBR(512, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c5'] = CBR(512, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c6'] = CBR(512, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
-        layers['c7'] = CBR(512, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c0'] = L.Convolution2D(in_ch, DOF[0], 3, 1, 1, initialW=w)
+        layers['c1'] = CBR(DOF[0], DOF[1], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c2'] = CBR(DOF[1], DOF[2], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c3'] = CBR(DOF[2], DOF[3], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c4'] = CBR(DOF[3], DOF[4], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c5'] = CBR(DOF[4], DOF[5], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c6'] = CBR(DOF[5], DOF[6], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
+        layers['c7'] = CBR(DOF[6], DOF[7], bn=True, sample='down', activation=F.leaky_relu, dropout=False)
         super(Encoder, self).__init__(**layers)
 
     def __call__(self, x):
@@ -61,14 +62,14 @@ class Decoder(chainer.Chain):
     def __init__(self, out_ch):
         layers = {}
         w = chainer.initializers.Normal(0.02)
-        layers['c0'] = CBR(512, 512, bn=True, sample='up', activation=F.relu, dropout=True)
-        layers['c1'] = CBR(1024, 512, bn=True, sample='up', activation=F.relu, dropout=True)
-        layers['c2'] = CBR(1024, 512, bn=True, sample='up', activation=F.relu, dropout=True)
-        layers['c3'] = CBR(1024, 512, bn=True, sample='up', activation=F.relu, dropout=False)
-        layers['c4'] = CBR(1024, 256, bn=True, sample='up', activation=F.relu, dropout=False)
-        layers['c5'] = CBR(512, 128, bn=True, sample='up', activation=F.relu, dropout=False)
-        layers['c6'] = CBR(256, 64, bn=True, sample='up', activation=F.relu, dropout=False)
-        layers['c7'] = L.Convolution2D(128, out_ch, 3, 1, 1, initialW=w)
+        layers['c0'] = CBR(DOF[7], DOF[6], bn=True, sample='up', activation=F.relu, dropout=True)
+        layers['c1'] = CBR(DOF[6] * 2, DOF[5], bn=True, sample='up', activation=F.relu, dropout=True)
+        layers['c2'] = CBR(DOF[5] * 2, DOF[4], bn=True, sample='up', activation=F.relu, dropout=True)
+        layers['c3'] = CBR(DOF[4] * 2, DOF[3], bn=True, sample='up', activation=F.relu, dropout=False)
+        layers['c4'] = CBR(DOF[3] * 2, DOF[2], bn=True, sample='up', activation=F.relu, dropout=False)
+        layers['c5'] = CBR(DOF[2] * 2, DOF[1], bn=True, sample='up', activation=F.relu, dropout=False)
+        layers['c6'] = CBR(DOF[1] * 2, DOF[0], bn=True, sample='up', activation=F.relu, dropout=False)
+        layers['c7'] = L.Convolution2D(DOF[0] * 2, out_ch, 3, 1, 1, initialW=w)
         super(Decoder, self).__init__(**layers)
 
     def __call__(self, hs):
@@ -81,7 +82,8 @@ class Decoder(chainer.Chain):
                 h = self.c7(h)
         return h
 
-    
+
+
 class Discriminator(chainer.Chain):
     def __init__(self, in_ch, out_ch):
         layers = {}

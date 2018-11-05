@@ -53,6 +53,10 @@ rescaleArrayのデフォルトのoffset
 """
 offset=0.8
 
+"""
+U-NETのチャネル自由度　Degree of freedom
+"""
+DOF = [32,64,128,256,256,256,256,256]  #[64,128,256,512,512,512,512,512]
 
 def convert_to_wave(Dabs, Dphase):
     D_hat = 10 ** Dabs * np.exp(1j*Dphase)    #xp.exp(1j*Dphase)
