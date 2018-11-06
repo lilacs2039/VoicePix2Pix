@@ -9,6 +9,8 @@ import os
 import chainer
 from chainer import training
 from chainer.training import extensions
+
+import util
 from net import Discriminator
 from net import Encoder
 from net import Decoder
@@ -41,6 +43,8 @@ def main():
                         help='processes of chainer.iterators.MultiprocessIterator')
     parser.add_argument('--shared_mem', type=int, default=None,
                         help='shared memory per data, for chainer.iterators.MultiprocessIterator. None means auto ajust.')
+    parser.add_argument('--audio_dataset_second', type=int, default=None,
+                        help='time length(second) of train audio data .')
     args = parser.parse_args()
 
     print('GPU: {}'.format(args.gpu))
@@ -49,6 +53,8 @@ def main():
     print('')
 
     args.out = os.path.join(args.out,datetime.now().strftime("%Y%m%d_%H%M%S"))
+    util.audio_dataset_second  =  args.audio_dataset_second
+    if args.batchsize > 1 :  assert util.audio_dataset_second != None , "when minibatch training (e.g. --batchsize > 1), --audio_dataset_second option is required."
 
     # Set up a neural network to train
     enc = Encoder(in_ch=2)

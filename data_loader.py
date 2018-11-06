@@ -21,6 +21,8 @@ class Vp2pDataset(dataset_mixin.DatasetMixin):
     def get_example(self,i):
         path = self.dataPaths[i]
         label ,fs= librosa.load(path, sr=util.sample_ratio)
+        if  util.audio_dataset_second is not None:
+            label = util.clip_audio_length(label,fs)
         input = generate_inputWave(fs, label)
         label_abs, label_phase = convert_to_spectrogram(label)
         input_abs,input_phase = convert_to_spectrogram(input)

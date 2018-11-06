@@ -56,7 +56,15 @@ offset=0.8
 """
 U-NETのチャネル自由度　Degree of freedom
 """
-DOF = [32,64,128,256,256,256,256,256]  #[64,128,256,512,512,512,512,512]
+DOF = [16,32,64,128,128,128,128,128]  #[32,64,128,256,256,256,256,256]  #[64,128,256,512,512,512,512,512]
+
+"""
+各音声データの長さ
+ミニバッチ学習するならデータ長さ統一する必要あり
+None:データ長さ統一しない
+"""
+audio_dataset_second = None
+
 
 def convert_to_wave(Dabs, Dphase):
     D_hat = 10 ** Dabs * np.exp(1j*Dphase)    #xp.exp(1j*Dphase)
@@ -131,4 +139,15 @@ def rescaleArray(ndArray, scale_factor=scale_factor,offset=offset):
     rescaled = (ndArray - offset)/ scale_factor
     return rescaled
 
-
+def clip_audio_length(audio_ndarray, sr):
+    """
+    audio_ndarray の長さをdata_lengthに変更する。
+    :param audio_ndarray:
+    :param sr:
+    :return:
+    """
+    if audio_ndarray.shape[0] > audio_dataset_second:
+        ret = audio_ndarray[:audio_dataset_second * sr]
+    else:
+        ret = np.pad(audio_ndarray, [(0, audio_dataset_second * sr - audio_ndarray.shape[0])], 'constant', constant_values=0)
+    return ret
