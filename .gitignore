@@ -6,3 +6,4 @@ mynote/*
 output/*
 dataset/*
 
+!.gitkeep
