@@ -141,13 +141,14 @@ def rescaleArray(ndArray, scale_factor=scale_factor,offset=offset):
 
 def clip_audio_length(audio_ndarray, sr):
     """
-    audio_ndarray の長さをdata_lengthに変更する。
+    audio_ndarray の長さ[秒]をutil.audio_dataset_secondになるようにカット・paddingする
     :param audio_ndarray:
     :param sr:
     :return:
     """
-    if audio_ndarray.shape[0] > audio_dataset_second:
+    if audio_ndarray.shape[0] > audio_dataset_second * sr:
         ret = audio_ndarray[:audio_dataset_second * sr]
     else:
         ret = np.pad(audio_ndarray, [(0, audio_dataset_second * sr - audio_ndarray.shape[0])], 'constant', constant_values=0)
+    # assert ret.__len__() == audio_dataset_second * sr , "audioのサイズが audio_dataset_second[sec] * sr(sampling rate)[/sec]になっていない"
     return ret
