@@ -70,6 +70,12 @@ class VoiceP2PUpdater(chainer.training.StandardUpdater):
         t_out = xp.zeros((batchsize, out_ch, w_out, h_out)).astype("f")
         
         for i in range(batchsize):
+            #todo batchsize ２以上だとスペクトログラム画像の横サイズ（時間方向）がサンプル間で異なることがあり、ndarrayへマージできず学習がエラー停止する。強制的にデータ除外することで対応中。
+            if(x_in[i,:].shape != batch[i][0].shape) :
+                print("skipped training_audio_sample because spectrogram shape does not match.(comes from program bug.)\r\n expected:{}, actual:{}"
+                      .format(x_in[i,:].shape ,batch[i][0].shape))
+                continue
+
             x_in[i,:] = xp.asarray(batch[i][0])
             t_out[i,:] = xp.asarray(batch[i][1])
         x_in = Variable(x_in)

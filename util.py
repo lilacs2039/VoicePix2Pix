@@ -150,5 +150,5 @@ def clip_audio_length(audio_ndarray, sr):
         ret = audio_ndarray[:audio_dataset_second * sr]
     else:
         ret = np.pad(audio_ndarray, [(0, audio_dataset_second * sr - audio_ndarray.shape[0])], 'constant', constant_values=0)
-    # assert ret.__len__() == audio_dataset_second * sr , "audioのサイズが audio_dataset_second[sec] * sr(sampling rate)[/sec]になっていない"
+    assert ret.__len__() == audio_dataset_second * sr , "audioのサイズが audio_dataset_second[sec] * sr(sampling rate)[/sec]になっていない"
     return ret

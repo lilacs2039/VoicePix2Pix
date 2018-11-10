@@ -102,6 +102,10 @@ python train.py -g 0 -i ./dataset --out ./output --snapshot_interval 1000 --shar
 
 
 
+# パラメータチューニング方法
+
+WIP
+
 
 
 # 謝辞
